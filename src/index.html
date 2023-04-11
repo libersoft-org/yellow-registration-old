@@ -1,59 +1,91 @@
 <!DOCTYPE html>
 <html lang="cs">
- <head>
+
+<head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>NEMP Account Registration</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/css/select2.min.css" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/main.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.13/js/intlTelInput.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/js/select2.min.js"></script>
   <script src="js/functions.js"></script>
- </head>
- <body>
-  <div class="container shadow">
-   <div class="button">Open NEMP Client</div>
-   <div class="button">Register NEMP account for free</div>
+  <link rel="shortcut icon" href="favicon.svg" />
+</head>
+
+<body>
+  <div class="registration">
+    <div class="registration__step-2 registration__step--hidden">
+      <div class="form">
+        <div class="form__header">
+          <div class="form__header__logo"></div>
+          <div class="form__header__title">Verify your NEPM account</div>
+        </div>
+        <div class="form__item">
+          <label class="form__item__label size-1" for="sms-code">SMS Code</label>
+          <input class="size-2 ta-c" type="text" name="sms-code" required>
+        </div>
+        <div>
+          <div class="button large" onClick="secondStep()">Verify</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="registration__step-1">
+      <div class="form">
+        <div class="form__header">
+          <div class="form__header__logo"></div>
+          <div class="form__header__title">Create your free NEMP account</div>
+        </div>
+
+        <div class="form__error">
+          Min password length is 6
+        </div>
+
+        <div class="form__item">
+          <input class="size-2 mr" type="text" name="user-name" placeholder="User name" id="user-name" required>
+          <select class="size-1" name="domain" id="domain" required>
+            <option value="">Domain</option>
+            <option value="nepm.io">@nepm.io</option>
+          </select>
+        </div>
+        <div class="form__item">
+          <input type="text" name="first-name" placeholder="First name" required>
+        </div>
+        <div class="form__item">
+          <input type="text" name="last-name" placeholder="Last name" required>
+        </div>
+        <div class="form__item">
+          <select name="gender" required>
+            <option value="">Gender</option>
+            <option value="female">Female</option>
+            <option value="male">Male</option>
+            <option value="trans-female">Trans-female</option>
+            <option value="trans-male">Trans-male</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="form__item">
+          <label class="form__item__label size-1" for="birth-date">Birth date</label>
+          <input class="size-2" type="date" name="birth-date" required>
+        </div>
+        <div class="form__item">
+          <select class="size-1 mr" id="phone-prefix" name="phone-prefix" required>
+            <option value="+1">🇺🇸 +1 (USA)</option>
+            <option value="+420">🇨🇿 +420 (Czech Republic)</option>
+            <option value="+421">🇸🇰 +421 (Slovakia)</option>
+          </select>
+          <input  class="size-2" type="tel" name="phone" pattern="\d{1,14}" placeholder="Phone number" required>
+        </div>
+        <div><input type="password" name="password" placeholder="Password" required></div>
+        <div><input type="password" name="password-again" placeholder="Password again" required></div>
+        <div>
+          <div class="button large" onClick="validateForm()">Continue</div>
+        </div>
+      </div>
+    </div>
   </div>
-  <div class="container shadow">
-   <div class="title">Create your free NEMP account</div>
-   <div>
-    <input type="text" name="user-name" placeholder="User name" required>
-    <select name="domain" required>
-     <option value="">-- Select domain --</option>
-     <option value="0">@domain.tld</option>
-    </select>
-   </div>
-   <div><input type="text" name="first-name" placeholder="First name" required></div>
-   <div><input type="text" name="last-name" placeholder="Last name" required></div>
-   <div>
-    <select name="gender" required>
-     <option value="">-- Gender --</option>
-     <option value="0">Female</option>
-     <option value="1">Male</option>
-     <option value="2">Trans-female</option>
-     <option value="3">Trans-male</option>
-     <option value="4">Other</option>
-    </select>
-   </div>
-   <div>
-    <label for="birth-date">Birth date: [REMOVE THIS LABEL]</label>
-    <input type="date" name="birth-date" required>
-   </div>
-   <div>
-     <select id="phone-prefix" name="phone-prefix" required>
-     <option value="">-- Select --</option>
-     <option value="+1">🇺🇸 +1 (USA)</option>
-     <option value="+420">🇨🇿 +420 (Czech Republic)</option>
-     <option value="+421">🇸🇰 +421 (Slovakia)</option>
-    </select>
-    <input type="tel" name="phone" pattern="\d{1,14}" placeholder="Phone number" required>
-   </div>
-   <div><input type="password" name="password" placeholder="Password" required></div>
-   <div><input type="password" name="password-again" placeholder="Password again" required></div>
-   <div><div class="button large">Register</div></div>
-   <div><div class="button large">Back</div></div>
-  </div>
- </body>
+</body>
+
 </html>
