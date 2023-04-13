@@ -67,14 +67,14 @@ select {
           box-shadow: 0px 4px 16px 0px #1D1D1D3D;
 }
 
-.form__error {
+.form__errors {
   display: none;
   font-size: 0.7rem;
   padding: 10px 0px;
   color: red;
 }
 
-.form__error--active {
+.form__errors--active {
   display: block;
 }
 
@@ -178,5 +178,11 @@ select {
 
 .registration__step--hidden {
   display: none;
+}
+
+.registration .comming-soon {
+  text-align: center;
+  font-style: italic;
+  color: grey;
 }
 /*# sourceMappingURL=main.css.map */
