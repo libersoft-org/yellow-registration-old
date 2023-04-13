@@ -1,3 +1,8 @@
+//const SERVER_URL = 'http://nemp.nemp.io:3000';
+const SERVER_URL = 'http://localhost:3000';
+const REGISTRATION_EP = `${SERVER_URL}/registration`;
+const VERIFY_EP = `${SERVER_URL}/verify`;
+
 const constraints = {
   username: {
     presence: true,
@@ -12,13 +17,13 @@ const constraints = {
     },
   },
   domain: {
-    presence: true,
+    presence: {allowEmpty: false},
   },
   firstname: {
-    presence: true,
+    presence: {allowEmpty: false},
   },
   lastname: {
-    presence: true,
+    presence: {allowEmpty: false},
   },
   birthdate: {
     presence: true,
@@ -29,7 +34,7 @@ const constraints = {
     },
   },
   gender: {
-    presence: true,
+    presence: {allowEmpty: false},
   },
   phone: {
     presence: true,
@@ -53,6 +58,18 @@ const constraints = {
 };
 
 
+function checkURLOtpId() {
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  const otpId = urlParams.get('otpid');
+  
+  if (otpId) {
+    document.getElementById('otpid').value = otpId;
+    showStep2();
+    console.log('Found OTP Id', otpId);
+  }
+}
+
 function showStep2() {
   document.querySelector('.registration__step-1').classList.add('registration__step--hidden');
   document.querySelector('.registration__step-2').classList.remove('registration__step--hidden');
@@ -65,7 +82,7 @@ function showStep3() {
 
 function verifySMSCode() {
   const data = {
-    optId: document.getElementById('optid').value,
+    optId: document.getElementById('otpid').value,
     code: document.getElementById('code').value,
   }
   sendSMSCode(data).then((response) => {
@@ -118,7 +135,7 @@ function validateForm() {
       const url = new URL(location);
       url.searchParams.set("otpid", data.bulkgate.data.id);
       history.pushState({}, "", url);
-      document.getElementById('optid').value = data.bulkgate.data.id;
+      document.getElementById('otpid').value = data.bulkgate.data.id;
 
       showStep2();
     }).catch((error) => {
@@ -136,7 +153,7 @@ function validateForm() {
 
 async function createUserAccount(data) {
   console.log('create', data);
-  const response = await fetch('http://127.0.0.1:3000/registration', {
+  const response = await fetch(REGISTRATION_EP, {
     method: "POST", 
     headers: {
       "Content-Type": "application/json",
@@ -149,7 +166,7 @@ async function createUserAccount(data) {
 
 async function sendSMSCode(data) {
   console.log('verify', data);
-  const response = await fetch('http://127.0.0.1:3000/verify', {
+  const response = await fetch(VERIFY_EP, {
     method: "POST", 
     headers: {
       "Content-Type": "application/json",
@@ -1637,10 +1654,12 @@ const phonePrefixes = [
   code: "ZW",
   dial_code: "+263"
   }
-]
+];
 
 const prefixSelect = document.getElementById('phoneprefix');
 phonePrefixes.forEach((prefixData) => {
   const { dial_code, flag, name } = prefixData;
   prefixSelect.innerHTML += `<option value="${prefixData.dial_code}">${prefixData.flag} ${dial_code} (${name})</option>`;
 });
+
+checkURLOtpId();

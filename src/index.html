@@ -38,7 +38,7 @@
         <div class="form__item">
           <label class="form__item__label size-1" for="sms-code">SMS Code</label>
           <input class="size-2 ta-c" type="text" id="code" name="sms-code" required>
-          <input hidden type="text" id="optid" name="opt-id" value="" required>
+          <input hidden type="text" id="otpid" name="otp-id" value="" required>
         </div>
         <div>
           <div class="button large" onClick="verifySMSCode()">Verify</div>
@@ -58,7 +58,7 @@
         <div class="form__item">
           <input class="size-2 mr" type="text" id="username" name="user-name" placeholder="User name" required>
           <select class="size-1" id="domain" name="domain" required>
-            <option value="">Domain</option>
+            <option value="" disabled selected>Domain</option>
             <option value="nepm.io">@nepm.io</option>
           </select>
         </div>
@@ -70,7 +70,7 @@
         </div>
         <div class="form__item">
           <select name="gender" id="gender" required>
-            <option value="">Gender</option>
+            <option value="" disabled selected>Gender</option>
             <option value="female">Female</option>
             <option value="male">Male</option>
             <option value="trans-female">Trans-female</option>
@@ -84,6 +84,7 @@
         </div>
         <div class="form__item">
           <select class="size-1 mr" id="phoneprefix" name="phone-prefix" required>
+            <option value="" disabled selected>Country code</option>
           </select>
           <input  class="size-2" type="tel" name="phone" id="phone" pattern="\d{1,14}" placeholder="Phone number" required>
         </div>

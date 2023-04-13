@@ -41,28 +41,41 @@ async function updateUserAccountOptId(username, otpId) {
 }
 
 async function updateUserAccountConfirmOptId(otpId) {
+  console.log('updateUserAccountConfirmOptId', otpId);
   const timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
   const data = await db.write(`UPDATE users SET confirmedTimestamp = '${timestamp}' WHERE otpId = '${otpId}'`);
   return data;
 }
 
-app.post(REGISTRATION_EP, (req, res) => {
+async function userExist(username) {
+  const isUserExist = await db.read('SELECT id FROM users WHERE username = $1', [username]);
+  let result = false;
+  if (isUserExist.length !== 0) {
+    result = true;
+  }
+
+  console.log('userExist', username, result, isUserExist); 
+  return result;
+}
+
+app.post(REGISTRATION_EP, async (req, res) => {
   if (!req.body) {
     res.status(400);
   }
 
   validate.async(req.body, constraints).then(async (success) => {
-    const createAccountStatus = await createUserAccount(success);
+    const { username, phone } = success;
 
-    if (createAccountStatus && createAccountStatus.error) {
+    const isUserExist = await userExist(username);
+    if (isUserExist) {
       res.json({
         success: false,
-        errors: [`${createAccountStatus.error.code === 'SQLITE_CONSTRAINT' ? 'The username has already been registered' : 'Unknown error - try again'}`],
+        errors: ['The username has already been registered'],
       });
       return;
     }
 
-    const bulkgate = await sendSMScode(req.body.phone).then(
+    const bulkgate = await sendSMScode(phone).then(
       (bulkgateResponse) => bulkgateResponse,
     ).catch((error) => {
       console.log(error);
@@ -77,7 +90,18 @@ app.post(REGISTRATION_EP, (req, res) => {
       return;
     }
 
-    await updateUserAccountOptId(req.body.username, bulkgate.data.id);
+    const createAccountStatus = await createUserAccount(success);
+
+    if (createAccountStatus && createAccountStatus.error) {
+      console.log('create user error', createAccountStatus.error);
+      res.json({
+        success: false,
+        errors: ['Unknown error - please try again later'],
+      });
+      return;
+    }
+
+    await updateUserAccountOptId(username, bulkgate.data.id);
 
     res.json({
       success: true,
