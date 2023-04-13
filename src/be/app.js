@@ -61,6 +61,7 @@ async function userExist(username) {
 app.post(REGISTRATION_EP, async (req, res) => {
   if (!req.body) {
     res.status(400);
+    return;
   }
 
   validate.async(req.body, constraints).then(async (success) => {
@@ -130,6 +131,7 @@ app.post(VERIFY_EP, async (req, res) => {
       success: false,
       errors: [bulkgate.data.error],
     });
+    return;
   }
 
   if (!bulkgate.data.verified) {
@@ -137,6 +139,7 @@ app.post(VERIFY_EP, async (req, res) => {
       success: false,
       errors: ['Invalid code'],
     });
+    return;
   }
 
   await updateUserAccountConfirmOptId(req.body.optId);
