@@ -1,0 +1,23 @@
+
+@import 'components/base';
+@import 'components/input';
+@import 'components/form';
+@import 'components/button';
+
+
+.registration {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+
+  &__step--hidden {
+    display: none;
+  }
+
+  .comming-soon {
+    text-align: center;
+    font-style: italic;
+    color: grey;
+  }
+ }
