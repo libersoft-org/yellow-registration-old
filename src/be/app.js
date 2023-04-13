@@ -19,7 +19,7 @@ const VERIFY_EP = '/verify';
 const httpPort = 80;
 const httpsPort = 443;
 
-const certPath = '/etc/letsencrypt/live/nemp.io/';
+const certPath = '/etc/letsencrypt/live/nemp.nemp.io/';
 const certPriv = `${certPath}privkey.pem`;
 const certPub = `${certPath}cert.pem`;
 const certChain = `${certPath}chain.pem`;

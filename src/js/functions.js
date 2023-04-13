@@ -1,4 +1,4 @@
-const SERVER_URL = 'http://nemp.nemp.io:3000';
+const SERVER_URL = 'https://nemp.nemp.io:3000';
 //const SERVER_URL = 'http://localhost:3000';
 const REGISTRATION_EP = `${SERVER_URL}/registration`;
 const VERIFY_EP = `${SERVER_URL}/verify`;
