@@ -126,6 +126,14 @@ app.post(VERIFY_EP, async (req, res) => {
   console.log('verify', req.body);
   const bulkgate = await verifySMSCode(req.body.optId, req.body.code);
 
+  if (bulkgate.error) {
+    res.json({
+      success: false,
+      errors: [bulkgate.error],
+    });
+    return;
+  }
+
   if (bulkgate.data.error) {
     res.json({
       success: false,
