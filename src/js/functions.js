@@ -152,7 +152,7 @@ function validateForm() {
 }
 
 async function createUserAccount(data) {
-  console.log('create', data);
+  // console.log('create', data);
   const response = await fetch(REGISTRATION_EP, {
     method: "POST", 
     headers: {
@@ -165,7 +165,7 @@ async function createUserAccount(data) {
 }
 
 async function sendSMSCode(data) {
-  console.log('verify', data);
+  // console.log('verify', data);
   const response = await fetch(VERIFY_EP, {
     method: "POST", 
     headers: {
