@@ -59,7 +59,7 @@ async function createUserAccount(data) {
       data.firstname,
       data.lastname,
       data.phone,
-      data.birtday,
+      data.birthday,
       data.gender,
     ],
   );
