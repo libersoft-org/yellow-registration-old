@@ -1,3 +1,4 @@
 .git/
 .secret_git
 src/be/node_modules
+src/be/nemp_registration.db

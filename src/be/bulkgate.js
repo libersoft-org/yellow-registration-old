@@ -15,7 +15,7 @@ async function sendSMScode(phone) {
     language: 'en',
     code_type: 'int',
     code_length: 6,
-    request_quota_number: 10,
+    request_quota_number: 3,
     request_quota_identification: SERVER_IP,
     expiration: 3600,
     channel: {
