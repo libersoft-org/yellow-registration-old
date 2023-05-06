@@ -53,7 +53,19 @@ const constraints = {
   },
 };
 
-module.exports = constraints;
+const phoneContraint = {
+  phone: {
+    presence: true,
+    format: {
+      pattern: /\+[1-9]\d{1}[0-9]\d{3,14}/,
+      flags: 'i',
+      message: 'not valid',
+    },
+  },
+};
+
+exports.constraints = constraints;
+exports.phoneContraint = phoneContraint;
 
 /*
 const testData = {

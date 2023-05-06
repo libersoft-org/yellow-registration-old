@@ -26,9 +26,23 @@ async function createUsersTable() {
   await db.write(createTableSql);
 }
 
+async function createVerificationTable() {
+  const createTableSql = `CREATE TABLE IF NOT EXISTS verification (
+    id INTEGER PRIMARY KEY AUTOINCREMENT, 
+    phone VARCHAR(100) NOT NULL,
+    confirmed BIT,
+    confirmedTimestamp TIMESTAMP,
+    optId VARCHAR(50),
+    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  )`;
+
+  await db.write(createTableSql);
+}
+
 async function initDB() {
   await createDatabase();
   await createUsersTable();
+  await createVerificationTable();
   console.log('DB initialized');
 }
 

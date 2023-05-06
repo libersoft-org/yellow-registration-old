@@ -1,15 +1,17 @@
-import React from 'react'
+import { CheckCircleIcon } from '@chakra-ui/icons'
+import { Center, Text } from '@chakra-ui/react'
+import BoxHeader from '../components/BoxHeader'
 
 export default function Thanks (): JSX.Element {
   return (
-    <div className="registration__step-3 registration__step--hidden">
-    <div className="form">
-      <div className="form__header">
-        <div className="form__header__logo"></div>
-        <div className="form__header__title">Welcome in NEMP!</div>
-      </div>
-      <div className="comming-soon">Thank you for registering, as soon as the service is active we will contact you</div>
-    </div>
-  </div>
+    <>
+      <BoxHeader title="Welcome in NEMP!" />
+      <Center mb="5">
+        <CheckCircleIcon boxSize="80px" color={'nemp_yellow.500'}/>
+      </Center>
+      <Text fontSize={'sm'} textAlign={'center'}>
+        Thank you for registering as soon as the service is active we will contact you.
+      </Text>
+    </>
   )
 }

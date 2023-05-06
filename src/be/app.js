@@ -11,12 +11,13 @@ const validate = require('validate.js');
 const Database = require('./database');
 const Encryption = require('./encryption');
 const { verifySMSCode, sendSMScode } = require('./bulkgate');
-const constraints = require('./validate');
+const { phoneConstraint, constraints } = require('./validate');
 
 const REGISTRATION_EP = '/registration';
+const SEND_SMS_EP = '/sms-verification';
 const VERIFY_EP = '/verify';
 
-const httpPort = 80;
+const httpPort = 3000;
 const httpsPort = 443;
 
 const certPath = '/etc/letsencrypt/live/nemp.nemp.io/';
@@ -49,6 +50,17 @@ async function userExist(username) {
   return result;
 }
 
+async function phoneExist(phone) {
+  const isPhoneExist = await db.read('SELECT id FROM users WHERE phone = $1', [phone]);
+  let result = false;
+  if (isPhoneExist.length !== 0) {
+    result = true;
+  }
+
+  console.log('phoneExist', phone, result, isPhoneExist);
+  return result;
+}
+
 async function createUserAccount(data) {
   const result = await db.write(
     `INSERT INTO users (username, pass, firstname, lastname, phone, birthday, gender) 
@@ -67,7 +79,20 @@ async function createUserAccount(data) {
   return result;
 }
 
-let certsExist = false;
+async function createPhoneVerification(phone, optId) {
+  const result = await db.write(
+    `INSERT INTO verification ( phone, optId ) 
+    VALUES ($1, $2)`,
+    [
+      phone,
+      optId,
+    ],
+  );
+
+  return result;
+}
+
+let certsExist = true;
 if (fs.existsSync(certPriv) && fs.existsSync(certPub) && fs.existsSync(certChain)) {
   certsExist = true;
 }
@@ -77,18 +102,21 @@ if (certsExist) {
   app.use(bodyParser.json());
   app.use(cors());
 
+  /*
   app.use((req, res, next) => {
     if (!req.secure) return res.redirect(301, `https://${req.headers.host}:${httpsPort}${req.url}`);
     next();
-  });
+  }); */
 
   this.httpServer = http.createServer(app).listen(httpPort);
   console.log(`HTTP server running on port: ${httpPort}`);
 
+  /*
   this.httpsServer = https.createSecureServer({
     key: fs.readFileSync(certPriv), cert: fs.readFileSync(certPub), ca: fs.readFileSync(certChain), allowHTTP1: true,
   }, app).listen(httpsPort);
   console.log(`HTTPS server running on port: ${httpsPort}`);
+*/
 
   app.post(REGISTRATION_EP, async (req, res) => {
     if (!req.body) {
@@ -135,6 +163,55 @@ if (certsExist) {
       }
 
       await updateUserAccountOptId(username, bulkgate.data.id);
+
+      res.json({
+        success: true,
+        bulkgate,
+      });
+    }, (errors) => {
+      if (errors instanceof Error) {
+        console.err('An error ocurred', errors);
+        res.status(500);
+      } else {
+        console.log('Validation errors', errors);
+        res.json({
+          success: false,
+          errors,
+        });
+      }
+    });
+  });
+
+  app.post(SEND_SMS_EP, async (req, res) => {
+    console.log('send sms verification', req.body);
+    const { countryCode, phoneNumber } = req.body;
+    const phone = `${countryCode}${phoneNumber}`;
+
+    validate.async(phone, phoneConstraint).then(async () => {
+      const isPhoneExist = await phoneExist(phone);
+      if (isPhoneExist) {
+        res.json({
+          success: false,
+          errors: ['Phone number has already been registered'],
+        });
+      }
+
+      const bulkgate = await sendSMScode(phone).then(
+        (bulkgateResponse) => bulkgateResponse,
+      ).catch((error) => {
+        console.log(error);
+        return { error: error.message };
+      });
+
+      if (bulkgate.error) {
+        res.json({
+          success: false,
+          errors: [bulkgate.error],
+        });
+        return;
+      }
+
+      await createPhoneVerification(phone, bulkgate.data.id);
 
       res.json({
         success: true,
