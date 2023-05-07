@@ -5,6 +5,8 @@ import { useState } from "react";
 import { validate } from "validate.js";
 import { apiSendVerificationSMS } from "../api/api";
 import { WarningTwoIcon } from "@chakra-ui/icons";
+import { UserDataProps } from "../App";
+import ErrorsDisplay from "../components/Errors";
 
 const constraints = {
   countryCode: {
@@ -26,13 +28,16 @@ function storeOptIdInURL(optId: string) {
   history.pushState({}, "", url);
 }
 
+export default function SendSMSVerification(props: UserDataProps) {
 
-export default function SendSMSVerification() {
+  const { userData, setUserData } = props;
 
   const [countryCode, setCountryCode] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const errorsArray: string[] = [];
   const [errors, setErrors] = useState(errorsArray);
+  const [loading, setLoading] = useState(false);
+
 
   async function sendVerificationSMS() {
     const data = {countryCode, phoneNumber};
@@ -45,11 +50,15 @@ export default function SendSMSVerification() {
           setErrors(response.errors);
           return;
         }
-
-        const optId = response.bulkgate.id;
+        console.log(response)
+        const optId = response.bulkgate.data.id;
         storeOptIdInURL(optId);
-        
 
+        setUserData({
+          ...userData,
+          phone: `${countryCode}${phoneNumber}`,
+          optId,
+        });
       }).catch((error) => {
         if (error.message) {
           setErrors([error.message]);
@@ -57,23 +66,23 @@ export default function SendSMSVerification() {
       });
     }
     console.log(`[debug] `, errors, data);
-
   }
 
   return (
     <>
       <VStack>
         <BoxHeader title="Create your free NEMP account" />
-        {errors && <VStack pb={4}>
-          { /*<Text color={'red'} as="b" fontSize={'xs'}><WarningTwoIcon /> Errors</Text> */}
-          {errors.map((error, i) => <Badge key={`err-${i}`} colorScheme='red'>{error}</Badge>)}
-        </VStack>}
+        {errors && ErrorsDisplay(errors)}
         <VStack width={'100%'}>
           <CountryCodesSelect name="countryCode" onChange={(e:React.ChangeEvent<HTMLSelectElement>) => { setCountryCode(e.currentTarget.value)}} value={countryCode} placeholder="country code" size='sm' bg='white' />
           <Input name="phoneNumber" onChange={(e:React.ChangeEvent<HTMLInputElement>) => { setPhoneNumber(e.currentTarget.value)}} value={phoneNumber} type="text" placeholder="phone number" size='sm' bg='white' />
         </VStack>
       </VStack>
-      <Button onClick={sendVerificationSMS} w='100%' mt={10} colorScheme="nemp_yellow" color={'black'}>
+      <Button 
+        onClick={sendVerificationSMS}
+        isLoading={loading}
+        loadingText={'Sending ...'}
+        w='100%' mt={10} colorScheme="nemp_yellow" color={'black'}>
         Send verification SMS
       </Button>
     </>

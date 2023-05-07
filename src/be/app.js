@@ -32,10 +32,10 @@ async function updateUserAccountOptId(username, otpId) {
   return data;
 }
 
-async function updateUserAccountConfirmOptId(otpId) {
-  console.log('updateUserAccountConfirmOptId', otpId);
+async function updatePhoneVerificationDone(optId) {
+  console.log('updatePhoneVerificationDone', optId);
   const timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
-  const data = await db.write(`UPDATE users SET confirmedTimestamp = '${timestamp}' WHERE otpId = '${otpId}'`);
+  const data = await db.write(`UPDATE verification SET confirmed = 1, confirmedTimestamp = '${timestamp}' WHERE optId = '${optId}'`);
   return data;
 }
 
@@ -183,6 +183,18 @@ if (certsExist) {
   });
 
   app.post(SEND_SMS_EP, async (req, res) => {
+    const bulkgate = {
+      data: {
+        id: 'opt-64582636693a93.05573517',
+      },
+    };
+
+    res.json({
+      success: true,
+      bulkgate,
+    });
+    return;
+
     console.log('send sms verification', req.body);
     const { countryCode, phoneNumber } = req.body;
     const phone = `${countryCode}${phoneNumber}`;
@@ -233,6 +245,12 @@ if (certsExist) {
 
   app.post(VERIFY_EP, async (req, res) => {
     console.log('verify', req.body);
+
+    res.json({
+      success: true,
+    });
+    return;
+
     const bulkgate = await verifySMSCode(req.body.optId, req.body.code);
 
     if (bulkgate.error) {
@@ -259,7 +277,7 @@ if (certsExist) {
       return;
     }
 
-    await updateUserAccountConfirmOptId(req.body.optId);
+    await updatePhoneVerificationDone(req.body.optId);
 
     res.json({
       success: true,

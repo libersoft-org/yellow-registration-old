@@ -1,17 +1,59 @@
 import { Box, Center, Flex, Container, VStack, Input, Button } from "@chakra-ui/react"
 import Footer from "./components/Footer"
 import RegistrationForm from "./screens/RegistrationForm"
-import CountryCodesSelect from "./components/CountryCodesSelect"
-import BoxHeader from "./components/BoxHeader"
+import { useState } from "react"
+import VerifySMSCode from "./screens/VerifySmsCode"
+import Thanks from "./screens/Thanks"
 import SendSMSVerification from "./screens/SendSmsVerification"
 
-//             <RegistrationForm /> <SMSVerification />
+export interface userDataIF {
+  verified: boolean,
+  complete: boolean,
+  phone: string | null,
+  optId: string | null,
+  domain: string | null,
+  gender: string | null,
+  firstName: string | null,
+  lastName: string | null,
+  username: string | null,
+  password: string | null,
+}
+
+export interface UserDataProps {
+  userData: userDataIF;
+  setUserData: React.Dispatch<React.SetStateAction<any>>;
+}
+
+const userDataInit: userDataIF = {
+  verified: false,
+  complete: false,
+  phone: null,
+  optId: null,
+  domain: null,
+  gender: null,
+  firstName: null,
+  lastName: null,
+  username: null,
+  password: null,
+}
+
 
 function App (): JSX.Element {
-  const [phone, setPhone] = useState('');
+  const [ userData, setUserData ] = useState(userDataInit);
 
-  function sendVerificationSMSDone(phone: string, optId: string) {
+  function getScreen() {
+  return <VerifySMSCode userData={userData} setUserData={setUserData} />
 
+    switch(true) {
+      case (userData.complete):
+        return <Thanks userData={userData} setUserData={setUserData} />
+      case (!userData.phone && !userData.optId):
+        return <SendSMSVerification userData={userData} setUserData={setUserData} />
+      case (userData.phone && userData.optId && !userData.verified):
+        return <VerifySMSCode userData={userData} setUserData={setUserData} />
+      case (userData.phone && userData.optId && userData.verified && !userData.complete):
+        return <RegistrationForm userData={userData} setUserData={setUserData} />
+    }
   }
 
   return (
@@ -28,7 +70,7 @@ function App (): JSX.Element {
       <Center>
         <VStack>
           <Box bg="nemp_yellow.50" w="380px" boxShadow="lg" p="5" borderRadius="md">
-            <SendSMSVerification />
+            {getScreen()}
           </Box>
         </VStack>
       </Center>

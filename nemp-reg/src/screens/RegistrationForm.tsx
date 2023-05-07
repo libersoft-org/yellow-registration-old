@@ -3,9 +3,9 @@ import CountryCodesSelect from "../components/CountryCodesSelect"
 import BoxHeader from "../components/BoxHeader"
 import { useState } from "react"
 import DatePicker from "../components/DatePicker"
+import { UserDataProps } from "../App"
 
-
-export default function RegistrationForm (): JSX.Element {
+export default function RegistrationForm (props: UserDataProps): JSX.Element {
   const [date, setDate] = useState(new Date());
   const [inputs, setInput] = useState({
     username: '',
@@ -48,21 +48,21 @@ export default function RegistrationForm (): JSX.Element {
         </Flex>
         <Input name="firstName" placeholder="first name" size='sm' bg={'white'} />
         <Input name="lastName" placeholder="last name" size='sm' bg={'white'} />
+        <Select name="domain" onChange={selectChange} value={inputs.domain} placeholder='gender' size='sm' bg={'white'}>
+          <option value='female'>♀️ female</option>
+          <option value='male'>♂️ male</option>
+        </Select>
         <Flex width={'100%'}>
           <Center width={'100%'}>
-          <Text fontSize='sm' textAlign={'center'} flex={2} >birth date</Text>
-          <DatePicker name="birthDate" date={date} setDate={setDate} />
+            <Text fontSize='sm' textAlign={'center'} flex={2} >birth date</Text>
+            <DatePicker name="birthDate" date={date} setDate={setDate} />
           </Center>
-        </Flex>
-        <Flex width={'100%'}>
-          <CountryCodesSelect name="countryCode" placeholder="country" flex={2} size='sm' mr={2} bg='white' />
-          <Input name="phone" type="text" placeholder="phone number" flex={3} size='sm' bg='white' />
         </Flex>
         <Input name="password" placeholder="password" size='sm' bg={'white'} />
         <Input name="passwordAgain" placeholder="password again" size='sm' bg={'white'} />
       </VStack>
       <Button w='100%' mt={10} colorScheme="nemp_yellow" color={'black'}>
-        Continue
+        Finish registration
       </Button>
     </>
   )

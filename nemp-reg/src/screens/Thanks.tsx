@@ -1,8 +1,11 @@
 import { CheckCircleIcon } from '@chakra-ui/icons'
 import { Center, Text } from '@chakra-ui/react'
 import BoxHeader from '../components/BoxHeader'
+import { UserDataProps } from '../App'
 
-export default function Thanks (): JSX.Element {
+export default function Thanks (props: UserDataProps): JSX.Element {
+  const { userData } = props;
+  
   return (
     <>
       <BoxHeader title="Welcome in NEMP!" />
