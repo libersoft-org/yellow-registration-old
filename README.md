@@ -1,4 +1,4 @@
-# The New E-Mail Protocol (NEMP) - web registration software
+# NEMP Web Registration
 
 This is the web registration software for [**NEMP Server**](https://github.com/libersoft-org/nemp-server/).
 
