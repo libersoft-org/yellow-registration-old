@@ -1,7 +1,7 @@
 import { Box, Center, Flex, Container, VStack, Input, Button } from "@chakra-ui/react"
 import Footer from "./components/Footer"
 import RegistrationForm from "./screens/RegistrationForm"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import VerifySMSCode from "./screens/VerifySmsCode"
 import Thanks from "./screens/Thanks"
 import SendSMSVerification from "./screens/SendSmsVerification"
@@ -9,6 +9,7 @@ import SendSMSVerification from "./screens/SendSmsVerification"
 export interface userDataIF {
   verified: boolean,
   complete: boolean,
+  countryCode: string | null,
   phone: string | null,
   optId: string | null,
   domain: string | null,
@@ -27,6 +28,7 @@ export interface UserDataProps {
 const userDataInit: userDataIF = {
   verified: false,
   complete: false,
+  countryCode: null,
   phone: null,
   optId: null,
   domain: null,
@@ -37,21 +39,31 @@ const userDataInit: userDataIF = {
   password: null,
 }
 
+function loadOptIdFromUrl() {
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  return urlParams.get('optid');
+}
 
 function App (): JSX.Element {
-  const [ userData, setUserData ] = useState(userDataInit);
+  const [ userData, setUserData ] = useState({
+    ...userDataInit,
+    optId: loadOptIdFromUrl(),
+  });
 
   function getScreen() {
-  return <VerifySMSCode userData={userData} setUserData={setUserData} />
+    console.log(`[debug] screen changed`);
+
+    // return <RegistrationForm userData={userData} setUserData={setUserData} />
 
     switch(true) {
       case (userData.complete):
         return <Thanks userData={userData} setUserData={setUserData} />
-      case (!userData.phone && !userData.optId):
+      case (!userData.optId):
         return <SendSMSVerification userData={userData} setUserData={setUserData} />
-      case (userData.phone && userData.optId && !userData.verified):
+      case (userData.optId && !userData.verified):
         return <VerifySMSCode userData={userData} setUserData={setUserData} />
-      case (userData.phone && userData.optId && userData.verified && !userData.complete):
+      case (userData.optId && userData.verified && !userData.complete):
         return <RegistrationForm userData={userData} setUserData={setUserData} />
     }
   }

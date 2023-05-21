@@ -1,3 +1,5 @@
+import { userDataIF } from "../App";
+
 const backendDomain = 'http://localhost:3000';
 const REGISTRATION_EP = `${backendDomain}/registration`;
 const SEND_SMS_EP = `${backendDomain}/sms-verification`;
@@ -24,6 +26,19 @@ export async function apiVerifySMSCode(optId: string, code: string) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({optId, code}),
+  });
+
+  return response.json();
+}
+
+export async function apiFinishRegistration(userData: userDataIF) {
+  console.log('finish', userData);
+  const response = await fetch(REGISTRATION_EP, {
+    method: "POST", 
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(userData),
   });
 
   return response.json();

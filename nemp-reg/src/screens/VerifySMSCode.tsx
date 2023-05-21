@@ -1,10 +1,9 @@
 import { VStack, Input, Button, Text } from "@chakra-ui/react";
 import BoxHeader from "../components/BoxHeader";
-import { UserDataProps } from "../App";
-import { useState } from "react";
+import { UserDataProps, userDataIF } from "../App";
+import { useEffect, useState } from "react";
 import ErrorsDisplay from "../components/Errors";
 import { apiVerifySMSCode } from "../api/api";
-
 
 
 export default function VerifySMSCode (props: UserDataProps): JSX.Element {
@@ -13,8 +12,31 @@ export default function VerifySMSCode (props: UserDataProps): JSX.Element {
   const errorsArray: string[] = [];
   const [errors, setErrors] = useState(errorsArray);
   const [loading, setLoading] = useState(false);
-  const [resentDisabled, setResentDisabled] = useState(true);
-  
+  const [resentTimeout, setResentTimeout] = useState(5);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setResentTimeout((resentTimeout) => {
+        if (resentTimeout <= 0) {
+          console.log(`stop counting`);
+          clearInterval(interval);
+        }
+        console.log(`[debug] `, resentTimeout - 1);
+
+        return resentTimeout - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  function resent() {
+    setUserData({
+      ...userData,
+      optId: null,
+    });
+  }
+
   async function verifySMSCode() {
     if (smsCode.length < 6) {
       setErrors(['not accepted verification code']);
@@ -51,7 +73,7 @@ export default function VerifySMSCode (props: UserDataProps): JSX.Element {
       <BoxHeader title="Verify your NEPM registration" />
       {errors && ErrorsDisplay(errors)}
       <VStack>
-        <Text fontSize={'sm'} as="b" mb="2" color="nemp_yellow.600">{userData.phone}</Text>
+        <Text fontSize={'sm'} as="b" mb="2" color="nemp_yellow.600">{userData.countryCode} {userData.phone}</Text>
         <Input 
           onChange={(e:React.ChangeEvent<HTMLInputElement>) => { setSMSCode(e.currentTarget.value)}} 
           value={smsCode}
@@ -66,12 +88,16 @@ export default function VerifySMSCode (props: UserDataProps): JSX.Element {
         Verify code
       </Button>
       <VStack mt={'5'}>
-        <Text fontSize={'sm'} >Didn't you get a sms code?</Text>
-        <Button isDisabled={resentDisabled} size={'xs'} color="default">
-          Resent SMS code
+        <Text mb={'2'} fontSize={'sm'} >Didn't you get a sms code?</Text>
+        <Button 
+          isDisabled={resentTimeout > 0 ? true : false} 
+          size={'xs'} 
+          color="default"
+          onClick={resent}
+        >
+          Resent SMS code {resentTimeout > 0 ? `${resentTimeout}s` : ''}
         </Button>
       </VStack>
-      
     </>
   )
 }

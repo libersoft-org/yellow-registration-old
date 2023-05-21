@@ -32,19 +32,22 @@ export default function SendSMSVerification(props: UserDataProps) {
 
   const { userData, setUserData } = props;
 
-  const [countryCode, setCountryCode] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
+  const [countryCode, setCountryCode] = useState(userData.countryCode || '');
+  const [phoneNumber, setPhoneNumber] = useState(userData.phone || '');
   const errorsArray: string[] = [];
   const [errors, setErrors] = useState(errorsArray);
   const [loading, setLoading] = useState(false);
 
 
   async function sendVerificationSMS() {
-    const data = {countryCode, phoneNumber};
-    const errors = validate({countryCode, phoneNumber}, constraints,  {format: "flat"});
+    const data = { countryCode, phoneNumber };
+    const errors = validate({countryCode, phoneNumber}, constraints, {format: "flat"});
     setErrors(errors);
 
+    console.log(`[debug] sendVerificationSMS`);
+
     if (!errors) {
+      setLoading(true);
       await apiSendVerificationSMS(countryCode, phoneNumber).then((response) => {
         if (response.errors) {
           setErrors(response.errors);
@@ -56,7 +59,8 @@ export default function SendSMSVerification(props: UserDataProps) {
 
         setUserData({
           ...userData,
-          phone: `${countryCode}${phoneNumber}`,
+          countryCode,
+          phone: phoneNumber,
           optId,
         });
       }).catch((error) => {
@@ -64,6 +68,7 @@ export default function SendSMSVerification(props: UserDataProps) {
           setErrors([error.message]);
         }
       });
+      setLoading(false);
     }
     console.log(`[debug] `, errors, data);
   }
@@ -74,8 +79,22 @@ export default function SendSMSVerification(props: UserDataProps) {
         <BoxHeader title="Create your free NEMP account" />
         {errors && ErrorsDisplay(errors)}
         <VStack width={'100%'}>
-          <CountryCodesSelect name="countryCode" onChange={(e:React.ChangeEvent<HTMLSelectElement>) => { setCountryCode(e.currentTarget.value)}} value={countryCode} placeholder="country code" size='sm' bg='white' />
-          <Input name="phoneNumber" onChange={(e:React.ChangeEvent<HTMLInputElement>) => { setPhoneNumber(e.currentTarget.value)}} value={phoneNumber} type="text" placeholder="phone number" size='sm' bg='white' />
+          <Text as='b' fontSize={'sm'}>Verify your phone number</Text>
+          <CountryCodesSelect 
+            name="countryCode" 
+            onChange={(e:React.ChangeEvent<HTMLSelectElement>) => { setCountryCode(e.currentTarget.value)}} 
+            value={countryCode} placeholder="country code" size='sm' bg='white' 
+          />
+          <Input 
+            name="phoneNumber" 
+            onChange={(e:React.ChangeEvent<HTMLInputElement>) => { 
+              setPhoneNumber(e.currentTarget.value)}
+            } value={phoneNumber} 
+            type="text" 
+            placeholder="phone number" 
+            size='sm' 
+            bg='white' 
+          />
         </VStack>
       </VStack>
       <Button 
