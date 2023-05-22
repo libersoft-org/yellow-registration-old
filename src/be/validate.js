@@ -32,14 +32,6 @@ const constraints = {
   gender: {
     presence: true,
   },
-  phone: {
-    presence: true,
-    format: {
-      pattern: /\+[1-9]\d{1}[0-9]\d{3,14}/,
-      flags: 'i',
-      message: 'not valid',
-    },
-  },
   password: {
     presence: true,
     length: {
@@ -53,11 +45,19 @@ const constraints = {
   },
 };
 
-const phoneContraint = {
+const phoneConstraint = {
+  countryCode: {
+    presence: true,
+    format: {
+      pattern: /^(\+?\d{1,3}|\d{1,4})$/,
+      flags: 'i',
+      message: 'not valid',
+    },
+  },
   phone: {
     presence: true,
     format: {
-      pattern: /\+[1-9]\d{1}[0-9]\d{3,14}/,
+      pattern: /\d{3,14}/,
       flags: 'i',
       message: 'not valid',
     },
@@ -65,7 +65,7 @@ const phoneContraint = {
 };
 
 exports.constraints = constraints;
-exports.phoneContraint = phoneContraint;
+exports.phoneConstraint = phoneConstraint;
 
 /*
 const testData = {
@@ -78,7 +78,6 @@ const testData = {
   password: 'alfass',
   confirmPassword: 'alfass',
 };
-
 
 function success(attributes) {
   console.log('Success!', attributes);

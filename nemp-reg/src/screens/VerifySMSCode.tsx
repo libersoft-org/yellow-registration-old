@@ -1,9 +1,10 @@
 import { VStack, Input, Button, Text } from "@chakra-ui/react";
 import BoxHeader from "../components/BoxHeader";
-import { UserDataProps, userDataIF } from "../App";
+import { UserDataProps } from "../App";
 import { useEffect, useState } from "react";
 import ErrorsDisplay from "../components/Errors";
 import { apiVerifySMSCode } from "../api/api";
+import { removeOptIdFromUrl } from "../utils/urlParams";
 
 
 export default function VerifySMSCode (props: UserDataProps): JSX.Element {
@@ -18,10 +19,8 @@ export default function VerifySMSCode (props: UserDataProps): JSX.Element {
     const interval = setInterval(() => {
       setResentTimeout((resentTimeout) => {
         if (resentTimeout <= 0) {
-          console.log(`stop counting`);
           clearInterval(interval);
         }
-        console.log(`[debug] `, resentTimeout - 1);
 
         return resentTimeout - 1;
       });
@@ -56,6 +55,7 @@ export default function VerifySMSCode (props: UserDataProps): JSX.Element {
           ...userData,
           verified: true,
         });
+        removeOptIdFromUrl();
       }).catch((error) => {
         if (error.message) {
           setErrors([error.message]);

@@ -27,15 +27,10 @@ const certChain = `${certPath}chain.pem`;
 
 const db = new Database();
 
-async function updateUserAccountOptId(username, otpId) {
-  const data = await db.write(`UPDATE users SET otpId = '${otpId}' WHERE username = '${username}'`);
-  return data;
-}
-
 async function updatePhoneVerificationDone(optId) {
   console.log('updatePhoneVerificationDone', optId);
   const timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
-  const data = await db.write(`UPDATE verification SET confirmed = 1, confirmedTimestamp = '${timestamp}' WHERE optId = '${optId}'`);
+  const data = await db.write(`UPDATE verifications SET confirmed = 1, confirmedTimestamp = '${timestamp}' WHERE optId = '${optId}'`);
   return data;
 }
 
@@ -50,40 +45,49 @@ async function userExist(username) {
   return result;
 }
 
-async function phoneExist(phone) {
-  const isPhoneExist = await db.read('SELECT id FROM users WHERE phone = $1', [phone]);
+async function phoneExist(countryCode, phone) {
+  const isPhoneExist = await db.read('SELECT id FROM users WHERE countryCode = $1 AND phone = $2', [countryCode, phone]);
   let result = false;
   if (isPhoneExist.length !== 0) {
     result = true;
   }
 
-  console.log('phoneExist', phone, result, isPhoneExist);
+  console.log('[phoneExist]', countryCode, phone, result, isPhoneExist);
   return result;
 }
 
 async function createUserAccount(data) {
+  console.log('[createUserAccount]', data);
+
+  const phoneData = await db.read('SELECT countryCode, phone FROM verifications WHERE optId = $1 AND confirmed = 1', [data.optId]);
+  console.log('[createUserAccount] phoneData', phoneData);
+
   const result = await db.write(
-    `INSERT INTO users (username, pass, firstname, lastname, phone, birthday, gender) 
-    VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+    `INSERT INTO users (username, pass, firstname, lastname, birthdate, gender, optId, countryCode, phone) 
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
     [
       data.username,
       await Encryption.getHash(data.password),
       data.firstname,
       data.lastname,
-      data.phone,
-      data.birthday,
+      data.birthdate,
       data.gender,
+      data.optId,
+      phoneData[0].countryCode,
+      phoneData[0].phone,
     ],
   );
 
   return result;
 }
 
-async function createPhoneVerification(phone, optId) {
+async function createPhoneVerification(countryCode, phone, optId) {
+  console.log('[createPhoneVerification]', countryCode, phone, optId);
   const result = await db.write(
-    `INSERT INTO verification ( phone, optId ) 
-    VALUES ($1, $2)`,
+    `INSERT INTO verifications ( countryCode, phone, optId ) 
+    VALUES ($1, $2, $3)`,
     [
+      countryCode,
       phone,
       optId,
     ],
@@ -102,105 +106,26 @@ if (certsExist) {
   app.use(bodyParser.json());
   app.use(cors());
 
-  /*
+  // eslint-disable-next-line consistent-return
   app.use((req, res, next) => {
     if (!req.secure) return res.redirect(301, `https://${req.headers.host}:${httpsPort}${req.url}`);
     next();
-  }); */
+  });
 
   this.httpServer = http.createServer(app).listen(httpPort);
   console.log(`HTTP server running on port: ${httpPort}`);
 
-  /*
   this.httpsServer = https.createSecureServer({
     key: fs.readFileSync(certPriv), cert: fs.readFileSync(certPub), ca: fs.readFileSync(certChain), allowHTTP1: true,
   }, app).listen(httpsPort);
   console.log(`HTTPS server running on port: ${httpsPort}`);
-*/
-
-  app.post(REGISTRATION_EP, async (req, res) => {
-    if (!req.body) {
-      res.status(400);
-      return;
-    }
-
-    validate.async(req.body, constraints).then(async (success) => {
-      const { username, phone } = success;
-
-      const isUserExist = await userExist(username);
-      if (isUserExist) {
-        res.json({
-          success: false,
-          errors: ['The username has already been registered'],
-        });
-        return;
-      }
-
-      const bulkgate = await sendSMScode(phone).then(
-        (bulkgateResponse) => bulkgateResponse,
-      ).catch((error) => {
-        console.log(error);
-        return { error: error.message };
-      });
-
-      if (bulkgate.error) {
-        res.json({
-          success: false,
-          errors: [bulkgate.error],
-        });
-        return;
-      }
-
-      const createAccountStatus = await createUserAccount(success);
-
-      if (createAccountStatus && createAccountStatus.error) {
-        console.log('create user error', createAccountStatus.error);
-        res.json({
-          success: false,
-          errors: ['Unknown error - please try again later'],
-        });
-        return;
-      }
-
-      await updateUserAccountOptId(username, bulkgate.data.id);
-
-      res.json({
-        success: true,
-        bulkgate,
-      });
-    }, (errors) => {
-      if (errors instanceof Error) {
-        console.err('An error ocurred', errors);
-        res.status(500);
-      } else {
-        console.log('Validation errors', errors);
-        res.json({
-          success: false,
-          errors,
-        });
-      }
-    });
-  });
 
   app.post(SEND_SMS_EP, async (req, res) => {
-    const bulkgate = {
-      data: {
-        id: 'opt-64582636693a93.05573517',
-      },
-    };
-
-    res.json({
-      success: true,
-      bulkgate,
-    });
-    return;
-
     console.log('send sms verification', req.body);
-    const { countryCode, phoneNumber } = req.body;
-    const phone = `${countryCode}${phoneNumber}`;
+    const { countryCode, phone } = req.body;
 
-    validate.async(phone, phoneConstraint).then(async () => {
-      const isPhoneExist = await phoneExist(phone);
+    validate.async(req.body, phoneConstraint, { format: 'flat' }).then(async () => {
+      const isPhoneExist = await phoneExist(countryCode, phone);
       if (isPhoneExist) {
         res.json({
           success: false,
@@ -208,7 +133,8 @@ if (certsExist) {
         });
       }
 
-      const bulkgate = await sendSMScode(phone).then(
+      const fullPhone = `${countryCode}${phone}`;
+      const bulkgate = await sendSMScode(fullPhone).then(
         (bulkgateResponse) => bulkgateResponse,
       ).catch((error) => {
         console.log(error);
@@ -223,7 +149,7 @@ if (certsExist) {
         return;
       }
 
-      await createPhoneVerification(phone, bulkgate.data.id);
+      await createPhoneVerification(countryCode, phone, bulkgate.data.id);
 
       res.json({
         success: true,
@@ -244,12 +170,12 @@ if (certsExist) {
   });
 
   app.post(VERIFY_EP, async (req, res) => {
-    console.log('verify', req.body);
+    console.log('verify sms code', req.body);
 
-    res.json({
-      success: true,
-    });
-    return;
+    if (!req.body) {
+      res.status(400);
+      return;
+    }
 
     const bulkgate = await verifySMSCode(req.body.optId, req.body.code);
 
@@ -281,6 +207,53 @@ if (certsExist) {
 
     res.json({
       success: true,
+    });
+  });
+
+  app.post(REGISTRATION_EP, async (req, res) => {
+    if (!req.body) {
+      res.status(400);
+      return;
+    }
+
+    validate.async(req.body, constraints, { format: 'flat' }).then(async () => {
+      const { username } = req.body;
+      const isUserExist = await userExist(username);
+      if (isUserExist) {
+        res.json({
+          success: false,
+          errors: ['The username has already been registered'],
+        });
+        return;
+      }
+
+      const createAccountStatus = await createUserAccount(req.body);
+
+      if (createAccountStatus && createAccountStatus.error) {
+        console.log('create user error', createAccountStatus.error);
+        res.json({
+          success: false,
+          errors: ['Unknown error - please try again later'],
+        });
+        return;
+      }
+
+      console.log(`New user ${username} created!`);
+
+      res.json({
+        success: true,
+      });
+    }, (errors) => {
+      if (errors instanceof Error) {
+        console.err('An error ocurred', errors);
+        res.status(500);
+      } else {
+        console.log('Validation errors', errors);
+        res.json({
+          success: false,
+          errors,
+        });
+      }
     });
   });
 }

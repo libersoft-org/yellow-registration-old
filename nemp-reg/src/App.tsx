@@ -1,10 +1,11 @@
-import { Box, Center, Flex, Container, VStack, Input, Button } from "@chakra-ui/react"
+import { Box, Center, Flex, Container, VStack} from "@chakra-ui/react"
 import Footer from "./components/Footer"
-import RegistrationForm from "./screens/RegistrationForm"
-import { useEffect, useState } from "react"
-import VerifySMSCode from "./screens/VerifySmsCode"
+import UserForm from "./screens/UserForm"
+import { useState } from "react"
+import VerifySMSCode from "./screens/VerifySMSCode"
 import Thanks from "./screens/Thanks"
-import SendSMSVerification from "./screens/SendSmsVerification"
+import PhoneVerification from "./screens/PhoneVerification"
+import { loadOptIdFromUrl } from "./utils/urlParams"
 
 export interface userDataIF {
   verified: boolean,
@@ -14,15 +15,15 @@ export interface userDataIF {
   optId: string | null,
   domain: string | null,
   gender: string | null,
-  firstName: string | null,
-  lastName: string | null,
+  firstname: string | null,
+  lastname: string | null,
   username: string | null,
   password: string | null,
 }
 
 export interface UserDataProps {
   userData: userDataIF;
-  setUserData: React.Dispatch<React.SetStateAction<any>>;
+  setUserData: React.Dispatch<React.SetStateAction<userDataIF>>;
 }
 
 const userDataInit: userDataIF = {
@@ -33,16 +34,10 @@ const userDataInit: userDataIF = {
   optId: null,
   domain: null,
   gender: null,
-  firstName: null,
-  lastName: null,
+  firstname: null,
+  lastname: null,
   username: null,
   password: null,
-}
-
-function loadOptIdFromUrl() {
-  const queryString = window.location.search;
-  const urlParams = new URLSearchParams(queryString);
-  return urlParams.get('optid');
 }
 
 function App (): JSX.Element {
@@ -52,19 +47,15 @@ function App (): JSX.Element {
   });
 
   function getScreen() {
-    console.log(`[debug] screen changed`);
-
-    // return <RegistrationForm userData={userData} setUserData={setUserData} />
-
     switch(true) {
       case (userData.complete):
-        return <Thanks userData={userData} setUserData={setUserData} />
+        return <Thanks />
       case (!userData.optId):
-        return <SendSMSVerification userData={userData} setUserData={setUserData} />
+        return <PhoneVerification userData={userData} setUserData={setUserData} />
       case (userData.optId && !userData.verified):
         return <VerifySMSCode userData={userData} setUserData={setUserData} />
       case (userData.optId && userData.verified && !userData.complete):
-        return <RegistrationForm userData={userData} setUserData={setUserData} />
+        return <UserForm userData={userData} setUserData={setUserData} />
     }
   }
 

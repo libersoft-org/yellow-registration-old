@@ -1,12 +1,11 @@
-import { Center, Flex, VStack, Input, Select, Text, Button, HStack } from "@chakra-ui/react"
+import { Flex, VStack, Input, Select, Button } from "@chakra-ui/react"
 import BoxHeader from "../components/BoxHeader"
-import { useEffect, useState } from "react"
-import DatePicker from "../components/DatePicker"
-import { UserDataProps, userDataIF } from "../App"
+import { useState } from "react"
+import { UserDataProps } from "../App"
 import { validate } from "validate.js";
 import { apiFinishRegistration } from "../api/api"
 import ErrorsDisplay from "../components/Errors"
-import BirthDayInputs from "../components/DatePicker"
+import BirthDateInputs from "../components/BirthDateInputs";
 
 const constraints = {
   username: {
@@ -55,7 +54,7 @@ const constraints = {
   },
 }
 
-export default function RegistrationForm (props: UserDataProps): JSX.Element {
+export default function UserForm (props: UserDataProps): JSX.Element {
   const { userData, setUserData } = props;
   const [loading, setLoading] = useState(false);
   const errorsArray: string[] = [];
@@ -73,7 +72,6 @@ export default function RegistrationForm (props: UserDataProps): JSX.Element {
 
   function selectChange(e: React.ChangeEvent<HTMLSelectElement>) {
     const {name, value} = e.currentTarget;
-    console.log('selectChange', name, value);
     if (Object.keys(inputs).includes(name)) {
       const update = {
         ...inputs,
@@ -85,7 +83,6 @@ export default function RegistrationForm (props: UserDataProps): JSX.Element {
 
   function inputChange(e: React.ChangeEvent<HTMLInputElement> ) {
     const {name, value} = e.currentTarget;
-    console.log(name, value);
     if (Object.keys(inputs).includes(name)) {
       const update = {
         ...inputs,
@@ -107,8 +104,6 @@ export default function RegistrationForm (props: UserDataProps): JSX.Element {
     const errors = validate(inputs, constraints, {format: "flat"});
     setErrors(errors);
 
-    console.log(`[debug] finish`);
-
     if (!errors) {
       const data = {
         ...userData,
@@ -117,7 +112,6 @@ export default function RegistrationForm (props: UserDataProps): JSX.Element {
 
       setUserData(data);
 
-      console.log(`[debug] userData`, data);
       setLoading(true);
       await apiFinishRegistration(data).then((response) => {
         if (response.errors) {
@@ -125,6 +119,12 @@ export default function RegistrationForm (props: UserDataProps): JSX.Element {
           return;
         }
         setErrors([]);
+        setUserData({
+          ...userData,
+          password: null,
+          optId: null,
+          complete: true,
+        });
       }).catch((error) => {
         if (error.message) {
           setErrors([error.message]);
@@ -151,7 +151,7 @@ export default function RegistrationForm (props: UserDataProps): JSX.Element {
           <option value='female'>♀️ female</option>
           <option value='male'>♂️ male</option>
         </Select>
-        <BirthDayInputs inputs={inputs} setDate={setBirthDate} />
+        <BirthDateInputs inputs={inputs} setDate={setBirthDate} />
         <Input name="password" type="password" onChange={inputChange} value={inputs.password} placeholder="password" size='sm' bg={'white'} />
         <Input name="confirmPassword" type="password" onChange={inputChange} value={inputs.confirmPassword} placeholder="password again" size='sm' bg={'white'} />
       </VStack>
