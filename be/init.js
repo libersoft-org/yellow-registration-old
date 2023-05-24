@@ -14,12 +14,25 @@ async function createUsersTable() {
     pass VARCHAR(255) NOT NULL, 
     firstname VARCHAR(255) NOT NULL,
     lastname VARCHAR(255) NOT NULL,
+    phone VARCHAR(100) NOT NULL UNIQUE,
+    countryCode VARCHAR(15) NOT NULL,
+    birthdate VARCHAR(50) NOT NULL,
+    gender VARCHAR(32) NOT NULL,
+    optId VARCHAR(100) NOT NULL,
+    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  )`;
+
+  await db.write(createTableSql);
+}
+
+async function createVerificationTable() {
+  const createTableSql = `CREATE TABLE IF NOT EXISTS verifications (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    countryCode VARCHAR(20) NOT NULL,
     phone VARCHAR(100) NOT NULL,
-    birthday VARCHAR(50), 
-    gender VARCHAR(32),
     confirmed BIT,
     confirmedTimestamp TIMESTAMP,
-    otpId VARCHAR(50),
+    optId VARCHAR(50),
     created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   )`;
 
@@ -29,6 +42,7 @@ async function createUsersTable() {
 async function initDB() {
   await createDatabase();
   await createUsersTable();
+  await createVerificationTable();
   console.log('DB initialized');
 }
 
