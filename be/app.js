@@ -106,22 +106,20 @@ if (certsExist) {
   app.use(bodyParser.json());
   app.use(cors());
 
-  /*
   // eslint-disable-next-line consistent-return
   app.use((req, res, next) => {
     if (!req.secure) return res.redirect(301, `https://${req.headers.host}:${httpsPort}${req.url}`);
     next();
   });
-  */
 
   this.httpServer = http.createServer(app).listen(httpPort);
   console.log(`HTTP server running on port: ${httpPort}`);
-/*
+
   this.httpsServer = https.createSecureServer({
     key: fs.readFileSync(certPriv), cert: fs.readFileSync(certPub), ca: fs.readFileSync(certChain), allowHTTP1: true,
   }, app).listen(httpsPort);
   console.log(`HTTPS server running on port: ${httpsPort}`);
-*/
+
   app.post(SEND_SMS_EP, async (req, res) => {
     console.log('send sms verification', req.body);
     const { countryCode, phone } = req.body;
