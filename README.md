@@ -1,5 +1,7 @@
 # NEMP Web Registration
 
+[![Created Badge](https://badges.pufler.dev/created/libersoft-org/nemp-registration-web)](https://badges.pufler.dev) [![Updated Badge](https://badges.pufler.dev/updated/libersoft-org/nemp-registration-web)](https://badges.pufler.dev) [![Visits Badge](https://badges.pufler.dev/visits/libersoft-org/nemp-registration-web)](https://badges.pufler.dev)
+
 This is the web registration software for [**NEMP Server**](https://github.com/libersoft-org/nemp-server/).
 
 If you just want to get your free NEMP mailbox hosted on our server, please navigate to: **https://nemp.io**
