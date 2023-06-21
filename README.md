@@ -1,16 +1,16 @@
-# NEMP Web Registration
+# Yellow Web Registration
 
-[![Created Badge](https://badges.pufler.dev/created/libersoft-org/nemp-registration-web)](https://badges.pufler.dev) [![Updated Badge](https://badges.pufler.dev/updated/libersoft-org/nemp-registration-web)](https://badges.pufler.dev) [![Visits Badge](https://badges.pufler.dev/visits/libersoft-org/nemp-registration-web)](https://badges.pufler.dev)
+[![Created Badge](https://badges.pufler.dev/created/libersoft-org/yellow-registration-web)](https://badges.pufler.dev) [![Updated Badge](https://badges.pufler.dev/updated/libersoft-org/yellow-registration-web)](https://badges.pufler.dev) [![Visits Badge](https://badges.pufler.dev/visits/libersoft-org/yellow-registration-web)](https://badges.pufler.dev)
 
-This is the web registration software for [**NEMP Server**](https://github.com/libersoft-org/nemp-server/).
+This is the web registration software for [**Yellow Server**](https://github.com/libersoft-org/yellow-server/).
 
-If you just want to get your free NEMP mailbox hosted on our server, please navigate to:
+If you just want to get your free [**Yellow**](https://yellow.libersoft.org) account hosted on our server, please navigate to:
 
-[![NEMP.io](https://raw.githubusercontent.com/libersoft-org/nemp-documentation/main/logo.png)](https://nemp.io)
+[![YellowNet.io](https://raw.githubusercontent.com/libersoft-org/odtp-documentation/main/logo.png)](https://yellownet.io)
 
 ## Installation
 
-- Please use [**NEMP Installer**](https://github.com/libersoft-org/nemp-install/) repository.
+- Please use [**Yellow Installer**](https://github.com/libersoft-org/yellow-install/) repository.
 
 ## Documentation
 
@@ -28,4 +28,4 @@ Thank you for being a part of our projects' success!
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=libersoft-org/nemp-registration-web&type=Date)](https://star-history.com/#libersoft-org/nemp-registration-web&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=libersoft-org/yellow-registration-web&type=Date)](https://star-history.com/#libersoft-org/yellow-registration-web&Date)
