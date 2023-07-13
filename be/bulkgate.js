@@ -1,9 +1,6 @@
 const fetch = require('node-fetch');
 
-const SERVER_IP = '127.0.0.1';
-const BULKGATE_APPID = '29824';
-const BULKGATE_TOKEN = 'vLWszKqcUQZVFUgJm0diaWKI2UxU8wgvd3SeGVEECWrpAirrTy';
-
+const { SERVER_IP, BULKGATE_APPID, BULKGATE_TOKEN } = require('./bulkgatetoken');
 // https://help.bulkgate.com/docs/cs/http-one-time-password-send.html
 async function sendSMScode(phone) {
   console.log(`Send SMS to ${phone}`);
